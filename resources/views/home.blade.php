@@ -5,30 +5,14 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">{{ __('Dashboard') }}</div>
+                    {{-- <div class="card-header">{{ __('Dashboard') }}</div> --}}
 
+                    
 
                     <div class="modal">
                         <div class="modal__dialog"><br><br><br><br><br>
-                            <div class="modal__close">
-                                <a href="#" class="modal__icon">
-                                    <i class="fa fa-times" aria-hidden="true"></i>
-                                </a>
-                                <span class="modal__note">Crypto</span>
-                            </div>
                             <div class="modal__content chat">
-                                <div class="modal__sidebar">
-                                    <div class="chat__search search">
-                                        <div class="search">
-                                            <div class="search__icon">
-                                                <i class="fa fa-search" aria-hidden="true"></i>
-                                            </div>
-                                            <input type="search" class="search__input" placeholder="Быстрый поиск">
-                                            <div class="search__icon search__icon_right">
-                                                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="modal__sidebar"><br><br><br>
                                     <div class="chat__users">
                                         <ul class="users">
                                             <li class="users__item users__item_group">
@@ -39,6 +23,7 @@
                                                 </div>
                                                 <span class="users__note">{{ Auth::user()->name }}</span>
                                             </li>
+                                            @foreach ($users as $user)
                                             <li class="users__item">
                                                 <div class="users__avatar avatar avatar_online">
                                                     <a href="#" class="avatar__wrap">
@@ -46,13 +31,12 @@
                                                             width="35" height="35" alt="avatar image">
                                                     </a>
                                                 </div>
-                                                @foreach ($users as $user)
                                                     <span class="users__note"> {{ $user->name }}</span>
                                                     <div class="users__counter">
                                                         <span class="counter">3</span>
                                                     </div>
-                                                @endforeach
                                             </li>
+                                            @endforeach
                                         </ul>
                                     </div>
                                 </div>
@@ -61,35 +45,26 @@
                                         @csrf
                                         <div class="chatbox">
                                             <div class="chatbox__row">
-                                                <div class="head">
-                                                    <div class="head__avatar avatar avatar_larger">
-                                                        <a href="#" class="avatar__wrap">
-                                                            M
-                                                        </a>
-                                                    </div>
-                                                    <div class="head__title">MaximModus</div>
-                                                </div>
-                                            </div>
+                                            </div><br><br><br>
                                             <div class="chatbox__row chatbox__row_fullheight">
                                                 <div class="chatbox__content">
                                                     @if ($message)
-                                                        
-                                                    @foreach ($message as $messages)
-                                                        <div class="message">
-                                                            <div class="message__head">
-                                                                <span class="message__note">Princess Murphy</span>
-                                                                <span
-                                                                    class="message__note">{{ $messages->created_at }}</span>
-                                                            </div>
-                                                            <div class="message__base">
-                                                                <div class="message__textbox">
-                                                                    <span class="message__text">{{ $messages->message }}
-                                                                        <br>
-                                                                    </span>
+                                                        @foreach ($message as $messages)
+                                                            <div class="message">
+                                                                <div class="message__head">
+                                                                    <span class="message__note">Princess Murphy</span>
+                                                                    <span
+                                                                        class="message__note">{{ $messages->created_at }}</span>
+                                                                </div>
+                                                                <div class="message__base">
+                                                                    <div class="message__textbox">
+                                                                        <span class="message__text">{{ $messages->message }}
+                                                                            <br>
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    @endforeach
+                                                        @endforeach
                                                     @endif
                                                 </div>
                                             </div>
@@ -110,6 +85,11 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            @if (session()->has('errors'))
+                        <div class="alert alert-danger">
+                            {{ session()->get('errors') }}
+                        </div>
+                    @endif
 
 
                                         </div>
@@ -122,38 +102,43 @@
                                                     <div class="message__textbox">
                                                         <span class="message__text">
                                                             <div class="form-group">
-                                                                <input type="text" placeholder="Enter Key" name="encrypted_message"
+                                                                <input type="text" placeholder="Enter Key"
+                                                                    name="encrypted_message"
                                                                     value="{{ $messages->message }}" hidden>
                                                             </div>
                                                             <br>
-                                                            <div class="form-popup" id="myForm">
-                                                                <label for="key"><b>Key</b></label>
-                                                                <input type="password" placeholder="Enter Key"
-                                                                    name="key" required>
+                                                            <form action="{{ route('decrypt') }}" method="post">
+                                                                @csrf
+                                                                <div class="form-popup" id="myForm">
+                                                                    <label for="key"><b>Key</b></label>
+                                                                    <input type="text" placeholder="Enter Key"
+                                                                        name="key" required>
 
-                                                                <button type="submit" class="btn">Decrypt</button>
-                                                                <button type="button" class="btn cancel"
-                                                                    onclick="closeForm()">close</button>
-                                                            </div>
+                                                                    <button type="submit" class="btn">Decrypt</button>
+                                                                    <button type="button" class="btn cancel"
+                                                                        onclick="closeForm()">close</button>
+                                                                </div>
+                                                            </form>
                                                             <button class="button button_id_submit open-button"
                                                                 type="button" onclick="openForm()">
                                                                 <i class="fa fa-unlock" aria-hidden="true"></i>
                                                             </button>
                                                         </span>
                                                     </div>
-                                                </div>
+                                                </div><br><br>
+                                                @if (isset($decryptedMessage))
+                                                <div class="message__base">
+                                                    <div class="message__textbox">
+                                                        <span class="message__text">{{ $decryptedMessage }}
+                                                            <br>
+                                                        </span>
+                                                    </div>
+                                                </div> 
+                                                @endif
+                                                <br><br>
                                             @endforeach
                                         </div>
                                     </div><br><br>
-                                    
-                                    @foreach ($decryptedMessage as $messages)
-                                    <div class="message__base">
-                                        <div class="message__textbox">
-                                            <span class="message__text">{{ $messages }}
-                                                <br>
-                                            </span>
-                                        </div>
-                                    </div>@endforeach<br><br>
                                 </div>
 
                             </div>

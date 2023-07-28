@@ -11,7 +11,9 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CustomEncryptionKeyMail;
+use App\Models\User;
 use Exception;
+use GuzzleHttp\Psr7\Message;
 
 class ContactsController extends Controller
 {
@@ -78,10 +80,14 @@ class ContactsController extends Controller
 
             $data = $request->input('message');
             $encryptedMessage = Crypt::encrypt($data);
+            $encryptedCustomEncryptionKey = Crypt::encrypt($customEncryptionKey);
+
+            // dd($encryptedCustomEncryptionKey, $encryptedMessage);
             
             $message = Contacts::create([
                 'users_id' => Auth::user()->id,
                 'message' => $encryptedMessage,
+                'key' => $encryptedCustomEncryptionKey
             ]);
 
             if(!$message){
@@ -154,22 +160,29 @@ class ContactsController extends Controller
 
     public function decrypt(Request $request)
     {
-        $pass = $request->validate([
-            'key' => 'required',
-        ]);
+        $users = User::all();
+        $message = Contacts::all();
 
         $key = $request->input('key');
+        $env = DB::table('contacts')->latest()->first();
+        $env->key;
+        $decryptedKey = Crypt::decrypt($env->key);
 
-        if ($key == getenv("APP_KEY")) {
+        // dd($decryptedKey);
 
-            $encryptedMessage = $request->input('encrypted_message');
+        if ($key == $decryptedKey) {
+
+            $encryptedMessage = Contacts::get()->last()->pluck('message');
             $decryptedMessage = Crypt::decrypt($encryptedMessage);
 
+        } 
+        else {
+            return redirect()->route('home')->with('errors', 'The key is invalid');
         }
-        // return redirect()->route('home')->with('decryptedMessage', $decryptedMessage);
-        return view('home', compact(
-            'decryptedMessage'
-        ));
+        // dd($decryptedMessage);
+        // dd($env, $key);
+        // dd($key);
+        return view('home', compact('decryptedMessage', 'users', 'message'));
 
         
     }

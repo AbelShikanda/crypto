@@ -21,8 +21,12 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::get('/decrypt', [App\Http\Controllers\ContactsController::class, 'decrypt'])->name('decrypt');
+Route::post('/decrypt', [App\Http\Controllers\ContactsController::class, 'decrypt'])->name('decrypt');
 
 Route::get('sendSMS', [App\Http\Controllers\NexmoSMSController::class, 'index'])->name('sendSMS');
 
 Route::resource('contacts', ContactsController::class);
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

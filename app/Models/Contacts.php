@@ -16,7 +16,8 @@ class Contacts extends Model
      * @var array
      */
     protected $fillable = [
-        'message', 'users_id'
+        'message', 'users_id',
+        'key', 
     ];
 
     // public function setMessageNoAttribute($value)
